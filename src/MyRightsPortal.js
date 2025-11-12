@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./MyRightsPortal.css"; // CSS file for styles
 
 // Example: list of organizations (in production, fetch from API)
@@ -203,6 +204,7 @@ export default function MyRightsPortal() {
           </tbody>
         </table>
       </div>
+      <div style={{ marginBottom: '30px', textAlign: 'center' }}></div>
     </div>
   );
 }

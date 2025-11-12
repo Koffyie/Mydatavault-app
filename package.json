@@ -1,8 +1,10 @@
 {
+  "homepage": ".",
   "name": "mydata-wallet",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@react-oauth/google": "^0.12.2",
     "react": "^18.x.x",
     "react-dom": "^18.x.x",
     "react-router-dom": "^6.x.x",

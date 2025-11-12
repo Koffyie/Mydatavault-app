@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Example static data structure. In production, fetch from your backend after OAuth linking.
 const initialConnections = [
@@ -43,7 +44,18 @@ const initialConnections = [
 ];
 
 export default function OAuthConnectionsDashboard() {
-  const [linkedAccounts, setLinkedAccounts] = useState(initialConnections);
+  // Load from localStorage if it exists, else use initialConnections.
+  const [linkedAccounts, setLinkedAccounts] = useState(() => {
+    const saved = localStorage.getItem("linkedAccounts");
+    return saved ? JSON.parse(saved) : initialConnections;
+  });
+
+  const navigate = useNavigate();
+
+  // Persist changes to localStorage whenever linkedAccounts state changes.
+  useEffect(() => {
+    localStorage.setItem("linkedAccounts", JSON.stringify(linkedAccounts));
+  }, [linkedAccounts]);
 
   // Toggle grant/revoke locally (would also call backend in production)
   const handleToggle = (providerIdx, connId) => {
@@ -54,13 +66,18 @@ export default function OAuthConnectionsDashboard() {
               ...prov,
               connections: prov.connections.map(conn =>
                 conn.id === connId
-                  ? { ...conn, granted: !conn.granted, updatedAt: new Date().toISOString().slice(0, 10) }
+                  ? {
+                      ...conn,
+                      granted: !conn.granted,
+                      updatedAt: new Date().toISOString().slice(0, 10)
+                    }
                   : conn
               )
             }
           : prov
       )
     );
+    // localStorage update handled by useEffect above
   };
 
   return (
@@ -80,20 +97,23 @@ export default function OAuthConnectionsDashboard() {
               Manage on {provider.provider}
             </a>
           </div>
-          {provider.connections.length === 0 &&
-            <div style={{ color: "#888" }}>No apps connected yet. Link your {provider.provider} account to get started.</div>
-          }
+          {provider.connections.length === 0 && (
+            <div style={{ color: "#888" }}>
+              No apps connected yet. Link your {provider.provider} account to get started.
+            </div>
+          )}
           {provider.connections.map(conn => (
-            <div key={conn.id} style={{
-              background: "#fff",
-              borderRadius: 6,
-              marginBottom: 10,
-              border: "1px solid #e0e0e0",
-              padding: "10px 16px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}>
+            <div key={conn.id}
+              style={{
+                background: "#fff",
+                borderRadius: 6,
+                marginBottom: 10,
+                border: "1px solid #e0e0e0",
+                padding: "10px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}>
               <div>
                 <div>
                   <strong>{conn.app}</strong>
@@ -126,12 +146,36 @@ export default function OAuthConnectionsDashboard() {
           ))}
         </div>
       ))}
+
       <div style={{ fontSize: 17, color: "#333", marginTop: 36 }}>
         <b>Want to import more connected apps?</b><br />
         Link another provider or manually add a connection.<br />
         <span style={{ fontSize: 13, color: "#555" }}>
           Note: Some apps may only be managed directly on your provider account.
         </span>
+      </div>
+
+      {/* Make a Data Request Button */}
+      <div style={{ marginTop: '40px', textAlign: 'center' }}>
+        <button
+          onClick={() => navigate('/rights')}
+          style={{
+            padding: '12px 24px',
+            background: '#1976d2',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+          }}
+        >
+          📋 Make a Data Request
+        </button>
+        <p style={{ color: '#666', fontSize: '14px', marginTop: '10px' }}>
+          Need to access, update, or delete your data? Submit a request here.
+        </p>
       </div>
     </div>
   );
