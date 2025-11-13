@@ -14,7 +14,7 @@ const initialConnections = [
         granted: true,
         scope: "Email, Profile",
         grantedAt: "2025-07-14",
-        updatedAt: "2025-07-14"
+        updatedAt: "2025-07-14",
       },
       {
         id: 2,
@@ -22,9 +22,9 @@ const initialConnections = [
         granted: false,
         scope: "Email",
         grantedAt: "2024-10-28",
-        updatedAt: "2025-01-15"
-      }
-    ]
+        updatedAt: "2025-01-15",
+      },
+    ],
   },
   {
     provider: "Facebook",
@@ -37,14 +37,13 @@ const initialConnections = [
         granted: true,
         scope: "Public profile",
         grantedAt: "2024-12-01",
-        updatedAt: "2025-03-01"
-      }
-    ]
-  }
+        updatedAt: "2025-03-01",
+      },
+    ],
+  },
 ];
 
 export default function OAuthConnectionsDashboard() {
-  // Load from localStorage if it exists, else use initialConnections.
   const [linkedAccounts, setLinkedAccounts] = useState(() => {
     const saved = localStorage.getItem("linkedAccounts");
     return saved ? JSON.parse(saved) : initialConnections;
@@ -52,131 +51,144 @@ export default function OAuthConnectionsDashboard() {
 
   const navigate = useNavigate();
 
-  // Persist changes to localStorage whenever linkedAccounts state changes.
   useEffect(() => {
     localStorage.setItem("linkedAccounts", JSON.stringify(linkedAccounts));
   }, [linkedAccounts]);
 
-  // Toggle grant/revoke locally (would also call backend in production)
   const handleToggle = (providerIdx, connId) => {
-    setLinkedAccounts(prev =>
+    setLinkedAccounts((prev) =>
       prev.map((prov, idx) =>
         idx === providerIdx
           ? {
               ...prov,
-              connections: prov.connections.map(conn =>
+              connections: prov.connections.map((conn) =>
                 conn.id === connId
                   ? {
                       ...conn,
                       granted: !conn.granted,
-                      updatedAt: new Date().toISOString().slice(0, 10)
+                      updatedAt: new Date().toISOString().slice(0, 10),
                     }
                   : conn
-              )
+              ),
             }
           : prov
       )
     );
-    // localStorage update handled by useEffect above
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "40px auto", fontFamily: "Arial, sans-serif" }}>
-      <h2>MyData Wallet — Connected Apps</h2>
-      {linkedAccounts.map((provider, pIdx) => (
-        <div key={provider.provider} style={{ marginBottom: 32, background: "#f5f8ff", borderRadius: 8, padding: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-            <img src={provider.logo} alt={provider.provider} style={{ width: 32, height: 32, marginRight: 10 }} />
-            <span style={{ fontWeight: "bold", fontSize: 18 }}>{provider.provider}</span>
-            <a
-              href={provider.manageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ marginLeft: "auto", color: "#1976d2", textDecoration: "underline", fontSize: 15 }}
-            >
-              Manage on {provider.provider}
-            </a>
-          </div>
-          {provider.connections.length === 0 && (
-            <div style={{ color: "#888" }}>
-              No apps connected yet. Link your {provider.provider} account to get started.
-            </div>
-          )}
-          {provider.connections.map(conn => (
-            <div key={conn.id}
-              style={{
-                background: "#fff",
-                borderRadius: 6,
-                marginBottom: 10,
-                border: "1px solid #e0e0e0",
-                padding: "10px 16px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}>
-              <div>
-                <div>
-                  <strong>{conn.app}</strong>
-                  <span style={{ fontSize: 13, color: "#555", fontStyle: "italic", marginLeft: 8 }}>
-                    ({conn.scope})
-                  </span>
-                </div>
-                <div style={{ fontSize: 12, color: "#666" }}>
-                  {conn.granted
-                    ? <>Access <span style={{ color: "#388e3c", fontWeight: "bold" }}>Granted</span> on {conn.grantedAt}</>
-                    : <>Access <span style={{ color: "#d32f2f", fontWeight: "bold" }}>Revoked</span> (last updated {conn.updatedAt})</>
-                  }
-                </div>
+    <>
+      <div className="background-overlay" />
+      <div className="page-content">
+        <div className="datawallet-card">
+          <h1 style={{ fontWeight: "700", fontSize: "2.15rem", color: "#1976d2", marginBottom: "12px" }}>
+            MyData Wallet
+          </h1>
+          <p style={{ color: "#444", marginBottom: "26px", fontWeight: 500, fontSize: "1.04rem" }}>
+            Connected Apps & Permissions
+          </p>
+          {linkedAccounts.map((provider, pIdx) => (
+            <div key={provider.provider} style={{ marginBottom: 28, background: "#f7faff", borderRadius: 10, padding: 18 }}>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 9 }}>
+                <img src={provider.logo} alt={provider.provider} style={{ width: 32, height: 32, marginRight: 10 }} />
+                <span style={{ fontWeight: "bold", fontSize: 18 }}>{provider.provider}</span>
+                <a
+                  href={provider.manageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    marginLeft: "auto",
+                    color: "#1976d2",
+                    textDecoration: "underline",
+                    fontSize: 15,
+                  }}
+                >
+                  Manage on {provider.provider}
+                </a>
               </div>
-              <button
-                onClick={() => handleToggle(pIdx, conn.id)}
-                style={{
-                  minWidth: 110,
-                  padding: "8px 12px",
-                  backgroundColor: conn.granted ? "#d32f2f" : "#388e3c",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 4,
-                  cursor: "pointer"
-                }}
-              >
-                {conn.granted ? "Revoke Access" : "Grant Access"}
-              </button>
+              {provider.connections.length === 0 && (
+                <div style={{ color: "#888" }}>
+                  No apps connected yet. Link your {provider.provider} account to get started.
+                </div>
+              )}
+              {provider.connections.map((conn) => (
+                <div
+                  key={conn.id}
+                  style={{
+                    background: "#fff",
+                    borderRadius: 7,
+                    marginBottom: 10,
+                    border: "1px solid #e0e0e0",
+                    padding: "11px 16px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <div>
+                      <strong>{conn.app}</strong>
+                      <span style={{ fontSize: 13, color: "#555", fontStyle: "italic", marginLeft: 8 }}>
+                        ({conn.scope})
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: "#666" }}>
+                      {conn.granted ? (
+                        <>
+                          Access <span style={{ color: "#388e3c", fontWeight: "bold" }}>Granted</span> on {conn.grantedAt}
+                        </>
+                      ) : (
+                        <>
+                          Access <span style={{ color: "#d32f2f", fontWeight: "bold" }}>Revoked</span> (last updated {conn.updatedAt})
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggle(pIdx, conn.id)}
+                    className={conn.granted ? "wallet-btn revoke" : "wallet-btn grant"}
+                  >
+                    {conn.granted ? "Revoke Access" : "Grant Access"}
+                  </button>
+                </div>
+              ))}
             </div>
           ))}
+
+          <div style={{ fontSize: 17, color: "#333", marginTop: 36 }}>
+            <b>Want to import more connected apps?</b>
+            <br />
+            Link another provider or manually add a connection.
+            <br />
+            <span style={{ fontSize: 13, color: "#555" }}>
+              Note: Some apps may only be managed directly on your provider account.
+            </span>
+          </div>
+
+          {/* Make a Data Request Button */}
+          <div style={{ marginTop: "40px", textAlign: "center" }}>
+            <button
+              onClick={() => navigate("/rights")}
+              style={{
+                padding: "12px 24px",
+                background: "#1976d2",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                fontSize: "16px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+            >
+              📋 Make a Data Request
+            </button>
+            <p style={{ color: "#666", fontSize: "14px", marginTop: "10px" }}>
+              Need to access, update, or delete your data? Submit a request here.
+            </p>
+          </div>
         </div>
-      ))}
-
-      <div style={{ fontSize: 17, color: "#333", marginTop: 36 }}>
-        <b>Want to import more connected apps?</b><br />
-        Link another provider or manually add a connection.<br />
-        <span style={{ fontSize: 13, color: "#555" }}>
-          Note: Some apps may only be managed directly on your provider account.
-        </span>
       </div>
-
-      {/* Make a Data Request Button */}
-      <div style={{ marginTop: '40px', textAlign: 'center' }}>
-        <button
-          onClick={() => navigate('/rights')}
-          style={{
-            padding: '12px 24px',
-            background: '#1976d2',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-          }}
-        >
-          📋 Make a Data Request
-        </button>
-        <p style={{ color: '#666', fontSize: '14px', marginTop: '10px' }}>
-          Need to access, update, or delete your data? Submit a request here.
-        </p>
-      </div>
-    </div>
+    </>
   );
 }

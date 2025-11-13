@@ -15,7 +15,6 @@ function App() {
           <Link to="/wallet" style={{ marginRight: "20px" }}>MyData Wallet</Link>
           <Link to="/rights" style={{ marginRight: "20px" }}>MyRights Portal</Link>
           <Link to="/dashboard" style={{ marginRight: "20px" }}>Compliance Dashboard</Link>
-          
         </nav>
 
         {/* Routes */}
